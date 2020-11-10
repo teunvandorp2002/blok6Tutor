@@ -1,6 +1,6 @@
 ---
 title: "De mooiste RMarkdown"
-author: "Teun van Dorp"
+author: "Teun van Dorp, Luc Hengeveld, Michelle Memelink"
 date: "11/10/2020"
 output: html_document
 ---
