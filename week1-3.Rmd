@@ -9,14 +9,11 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## De mooie code
 
 ```{r aanmaken}
 library(edgeR)
+library(limma)
 fDir <-  "/home/teun/Documents/HAN/Jaar 2/Blok 6/R markdown/"
 fName <- "WCFS1_cnts.txt"
 
@@ -25,7 +22,9 @@ cnts <- read.delim(paste0(fDir,fName), comment.char="#")
 row.names(cnts) <- cnts[,"ID"]
 
 exp <- c("WCFS1.glc","WCFS1.glc","WCFS1.rib","WCFS1.rib")
+```
 
+```{r verwerken}
 group <- factor(exp)
 y <- DGEList(counts=cnts[,2:5],group=group)
 
@@ -40,12 +39,14 @@ print(design)
 y <- estimateGLMCommonDisp(y,design)
 y <- estimateGLMTrendedDisp(y,design, method="power")
 y <- estimateGLMTagwiseDisp(y,design)
-
-pdf(paste0(fDir,"LP_edgeR.pdf"))
+```
+## De plotjes
+```{r plot}
 plotMDS(y)
 plotBCV(y)
-dev.off()
+```
 
+```{r verder}
 fit <- glmFit(y,design)
 
 mc <- makeContrasts(exp.r=WCFS1.glc-WCFS1.rib, levels=design)
@@ -54,4 +55,6 @@ fit <- glmLRT(fit, contrast=mc)
 
 res<-topTags(fit)
 print(res)
+
+
 ```
