@@ -13,7 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r aanmaken}
 library(edgeR)
-library(limma)
 fDir <-  "/home/teun/Documents/HAN/Jaar 2/Blok 6/R markdown/"
 fName <- "WCFS1_cnts.txt"
 
@@ -55,6 +54,12 @@ fit <- glmLRT(fit, contrast=mc)
 
 res<-topTags(fit)
 print(res)
+```
 
-
+```{r writeFile}
+library(xlsx)
+write.xlsx(fit, "foldChanges.xlsx", sheetName = "All Data", col.names = T,
+           row.names = T, append = F)
+write.xlsx(res, "foldChanges.xlsx", sheetName = "Higest Values", col.names = T,
+           row.names = T, append = T)
 ```

@@ -21,6 +21,7 @@ De benodigde blibliotheken worden aangroepen. <br>
 Output: welke package is ingeladen.
 ```{r aanroepen libraries}
 library(edgeR)
+library(xlsx)
 ```
 
 ### Bestand open en inlezen
@@ -31,7 +32,9 @@ een andere vector de namen opgeslagen van de verschillende experimenten, dit zij
 de kolomnamen. 
 
 ```{r aanmaken}
-fDir <-  "/Users/Michelle Memelink/Documents/HAN jaar 2/Blok 2/Tutor/"
+
+#fDir <-  "/home/teun/Documents/HAN/Jaar 2/Blok 6/R markdown/"
+#fDir <-  "/Users/Michelle Memelink/Documents/HAN jaar 2/Blok 2/Tutor/"
 fName <- "WCFS1_cnts.txt"
 cnts <- read.delim(paste0(fDir,fName), comment.char="#")
 row.names(cnts) <- cnts[,"ID"]
@@ -153,3 +156,13 @@ res<-topTags(fit)
 print(res)
 ```
 
+## Resultaten opslaan in excel bestand
+De data van de tabellen worden opgeslagen in een excel bestand. Dit bestand
+bestaat uit 2 verschillende sheets: een sheet met alle data en een ander
+sheet met de beste waarden.
+```{r resultaten opslaan}
+write.xlsx(fit, "foldChanges.xlsx", sheetName = "All Data", col.names = T,
+           row.names = T, append = F)
+write.xlsx(res, "foldChanges.xlsx", sheetName = "Highest Values", col.names = T,
+           row.names = T, append = T)
+```
