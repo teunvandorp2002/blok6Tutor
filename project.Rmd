@@ -4,7 +4,7 @@ author: "Teun van Dorp, Luc Hengeveld, Michelle Memelink"
 date: "20/11/2020"
 output: html_document
 ---
-### ALgemeen doel
+### Algemeen doel
 Het doel is om te onderzoeken of er verschil is in genexpressie bij de bacterie
 Lactobacillus plantarum WCFS1, als deze op verschillende voedingsbodem groeit.
 De twee gebruikte soorten voedingsbodem bevatten of glucose of ribose. Er is op 
@@ -33,7 +33,7 @@ de kolomnamen.
 
 ```{r aanmaken}
 
-#fDir <-  "/home/teun/Documents/HAN/Jaar 2/Blok 6/R markdown/"
+fDir <-  "/home/teun/Documents/HAN/Jaar 2/Blok 6/R markdown/"
 #fDir <-  "/Users/Michelle Memelink/Documents/HAN jaar 2/Blok 2/Tutor/"
 fName <- "WCFS1_cnts.txt"
 cnts <- read.delim(paste0(fDir,fName), comment.char="#")
@@ -152,8 +152,8 @@ bevat de p-waardes. Dit zijn de exact p-waarde voor differentiële expressie.
 De laatste kolom bevat de p-waarde aangepast voor meervoudige tests. Al de 
 waardes hebben berekken tot het vergelijk van WCFS1.glc met WCFS1.rib.
 ```{r beste resultaten}
-res<-topTags(fit)
-print(res)
+print(topTags(fit))
+res<-topTags(fit, n = length(fit$fitted.values))
 ```
 
 ## Resultaten opslaan in excel bestand

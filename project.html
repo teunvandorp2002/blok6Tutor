@@ -418,7 +418,7 @@ summary {
 
 
 <div id="algemeen-doel" class="section level3">
-<h3>ALgemeen doel</h3>
+<h3>Algemeen doel</h3>
 <p>Het doel is om te onderzoeken of er verschil is in genexpressie bij de bacterie Lactobacillus plantarum WCFS1, als deze op verschillende voedingsbodem groeit. De twee gebruikte soorten voedingsbodem bevatten of glucose of ribose. Er is op beide bodem twee keer een experiment uitgevoerd. De resultaten die hieruit volgende worden gebruikt in dit onderzoek. De resultaten die door middel van deze code verkregen worden hebben dus betrekking op die resultaten. Uit deze resultaten kan uiteindelijk afgeleid worden of er verschil in genexpressie is.</p>
 </div>
 <div id="ophalen-blibliotheken" class="section level3">
@@ -433,6 +433,7 @@ Output: welke package is ingeladen.</p>
 <h3>Bestand open en inlezen</h3>
 <p>De locatie van het bestand dat uitgelezen moet wordt, wordt aangegeven en de naam van het bestand wordt aangegeven, deze wordt tevens ingeladen. Vervolgens wordt het bestand ingelezen en worden alle ID’s van de genen eruit gehaald. Ook wordt erin een andere vector de namen opgeslagen van de verschillende experimenten, dit zijn de kolomnamen.</p>
 <pre class="r"><code>fDir &lt;-  &quot;/home/teun/Documents/HAN/Jaar 2/Blok 6/R markdown/&quot;
+#fDir &lt;-  &quot;/Users/Michelle Memelink/Documents/HAN jaar 2/Blok 2/Tutor/&quot;
 fName &lt;- &quot;WCFS1_cnts.txt&quot;
 cnts &lt;- read.delim(paste0(fDir,fName), comment.char=&quot;#&quot;)
 row.names(cnts) &lt;- cnts[,&quot;ID&quot;]
@@ -514,8 +515,7 @@ fit &lt;- glmLRT(fit, contrast=mc)</code></pre>
 <div id="beste-resultaten-weergeven" class="section level2">
 <h2>Beste resultaten weergeven</h2>
 <p>ALs laatste wordt het resultaat weergegeven, welke voortkomt uit het model.Er komt als resultaat een tabel met alle genen en de bijbehorende waardes uit. <br> Output: de eerste kolom bevat de gen ID’s. De tweede kolom bevat de log fold change waardes. De derde kolom bevat de verschillen in counts, dus hoe vaak gen geteld is. De vierde kolom bevat ?????????(dit weet ik niet). De vijfde kolom bevat de p-waardes. Dit zijn de exact p-waarde voor differentiële expressie. De laatste kolom bevat de p-waarde aangepast voor meervoudige tests. Al de waardes hebben berekken tot het vergelijk van WCFS1.glc met WCFS1.rib.</p>
-<pre class="r"><code>res&lt;-topTags(fit)
-print(res)</code></pre>
+<pre class="r"><code>print(topTags(fit))</code></pre>
 <pre><code>## Coefficient:  1*WCFS1.glc -1*WCFS1.rib 
 ##              logFC    logCPM        LR        PValue           FDR
 ## lp_3539 -12.277585 11.815752 1517.4179  0.000000e+00  0.000000e+00
@@ -528,6 +528,7 @@ print(res)</code></pre>
 ## lp_3660  -8.372588 11.052275 1045.9904 1.810664e-229 6.919000e-227
 ## lp_3658  -8.107648 11.744789 1043.0176 8.016489e-229 2.722934e-226
 ## lp_3569  -8.632865 11.871533  991.7442 1.118903e-217 3.420488e-215</code></pre>
+<pre class="r"><code>res&lt;-topTags(fit, n = length(fit$fitted.values))</code></pre>
 </div>
 <div id="resultaten-opslaan-in-excel-bestand" class="section level2">
 <h2>Resultaten opslaan in excel bestand</h2>
