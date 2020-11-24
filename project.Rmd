@@ -36,21 +36,9 @@ de kolomnamen.
 #fDir <-  "/home/teun/Documents/HAN/Jaar 2/Blok 6/R markdown/"
 #fDir <-  "/Users/Michelle Memelink/Documents/HAN jaar 2/Blok 2/Tutor/"
 fDir <-  "C:/Users/luche/Documents/HAN/Leerjaar_2/Tutor/Blok 6/"
-fNameWCFS1 <- "WCFS1_cnts.txt"
-fNameNC8 <- "WCFS1_RNA-Seq.txt"
-
-cntsWCFS1 <- read.delim(paste0(fDir,fNameWCFS1), comment.char="#")
-cntsNC8 <- read.delim(paste0(fDir,fNameNC8), comment.char="#")
-
-names(cntsNC8)[2] <- "NC8.glc.1"
-names(cntsNC8)[3] <- "NC8.glc.2"
-names(cntsNC8)[4] <- "NC8.rib.1"
-names(cntsNC8)[5] <- "NC8.rib.2"
-
-allecnts <- merge(cntsWCFS1,cntsNC8,by="ID")
-
-row.names(allecnts) <- allecnts[,"ID"]
-
+fName <- "RNA-Seq-counts.txt"
+cnts <- read.delim(paste0(fDir,fName), comment.char="#")
+row.names(cnts) <- cnts[,"ID"]
 exp <- c("WCFS1.glc", "WCFS1.glc", "WCFS1.rib", "WCFS1.rib", "NC8.glc", "NC8.glc", "NC8.rib", "NC8.rib")
 ```
 
@@ -61,8 +49,8 @@ de kolomnamen bevat wordt meegegeven voor het maken ven de DGElist.
 ```{r DGElist aanmaken}
 group <- factor(exp)
 print(group)
-print(allecnts[,4:9])
-y <- DGEList(allecounts=allecnts[,2:9],group=group)
+print(cnts[,2:9])
+y <- DGEList(counts=cnts[,2:9],group=group)
 ```
 
 ### Normaliseren
