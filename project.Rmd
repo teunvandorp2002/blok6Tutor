@@ -130,7 +130,7 @@ plotBCV(y)
 
 ## Fit data
 Op basis van de degin matrix en de samples, wordt er een model lijn (lineaire) 
-gemaakt hoe de waardes zichtot elkaar verhouden. 
+gemaakt hoe de waardes zich tot elkaar verhouden. 
 ```{r fit data}
 fit <- glmFit(y,design)
 ```
@@ -140,8 +140,10 @@ De input is het gemaakte model. Er wordt aangegeven wat er gemeten moet worden,
 dit is het verschil in genexpressie tussen glucose en ribose. Dit verschil is de 
 fold change.Vervolgens wordt het model passende gemaakt en geef je het vorm. 
 ```{r bepalen fold change}
-mc <- makeContrasts(exp.r=WCFS1.glc-WCFS1.rib, levels=design)
-fit <- glmLRT(fit, contrast=mc)
+mcWCFS1 <- makeContrasts(exp.r=WCFS1.glc-WCFS1.rib, levels=design)
+fitWCFS1 <- glmLRT(fit, contrast=mcWCFS1)
+mcNC8 <- makeContrasts(exp.r=NC8.glc-NC8.rib, levels=design)
+fitNC8 <- glmLRT(fit, contrast=mcNC8)
 ```
 
 
@@ -155,8 +157,9 @@ bevat de p-waardes. Dit zijn de exact p-waarde voor differentiële expressie.
 De laatste kolom bevat de p-waarde aangepast voor meervoudige tests. Al de 
 waardes hebben berekken tot het vergelijk van WCFS1.glc met WCFS1.rib.
 ```{r beste resultaten}
-print(topTags(fit))
-res<-topTags(fit, n = length(fit$fitted.values))
+resWCFS1<-topTags(fitWCFS1, n = length(fitWCFS1$fitted.values))
+resNC8<-topTags(fitNC8, n = length(fitNC8$fitted.values))
+
 ```
 
 ## Resultaten opslaan in excel bestand
@@ -164,8 +167,12 @@ De data van de tabellen worden opgeslagen in een excel bestand. Dit bestand
 bestaat uit 2 verschillende sheets: een sheet met alle data en een ander
 sheet met de beste waarden.
 ```{r resultaten opslaan}
-write.xlsx(fit, "foldChanges.xlsx", sheetName = "All Data", col.names = T,
+write.xlsx(fitWCFS1, "foldChanges.xlsx", sheetName = "All Data WCFS1", col.names = T,
            row.names = T, append = F)
-write.xlsx(res, "foldChanges.xlsx", sheetName = "Highest Values", col.names = T,
+write.xlsx(resWCFS1, "foldChanges.xlsx", sheetName = "Highest Values WCFS1", col.names = T,
+           row.names = T, append = T)
+write.xlsx(fitNC8, "foldChanges.xlsx", sheetName = "All Data NC8", col.names = T,
+           row.names = T, append = T)
+write.xlsx(resNC8, "foldChanges.xlsx", sheetName = "Highest Values NC8", col.names = T,
            row.names = T, append = T)
 ```
