@@ -22,6 +22,7 @@ Output: welke package is ingeladen.
 ```{r aanroepen libraries}
 library(edgeR)
 library(xlsx)
+library(rstudioapi)
 ```
 
 ### Bestand open en inlezen
@@ -32,11 +33,8 @@ een andere vector de namen opgeslagen van de verschillende experimenten, dit zij
 de kolomnamen. 
 
 ```{r aanmaken}
-
-#fDir <-  "/home/teun/Documents/HAN/Jaar 2/Blok 6/R markdown/"
-#fDir <-  "/Users/Michelle Memelink/Documents/HAN jaar 2/Blok 2/Tutor/"
-fDir <-  "C:/Users/luche/Documents/HAN/Leerjaar_2/Tutor/Blok 6/"
-fName <- "RNA-Seq-counts.txt"
+fDir <- selectDirectory(caption = "Select Directory")
+fName <- "/RNA-Seq-counts.txt"
 cnts <- read.delim(paste0(fDir,fName), comment.char="#")
 row.names(cnts) <- cnts[,"ID"]
 exp <- c("WCFS1.glc", "WCFS1.glc", "WCFS1.rib", "WCFS1.rib", "NC8.glc", "NC8.glc", "NC8.rib", "NC8.rib")
@@ -49,7 +47,7 @@ de kolomnamen bevat wordt meegegeven voor het maken ven de DGElist.
 ```{r DGElist aanmaken}
 group <- factor(exp)
 print(group)
-print(cnts[,2:9])
+print(summary(cnts[,2:9]))
 y <- DGEList(counts=cnts[,2:9],group=group)
 ```
 
@@ -157,6 +155,8 @@ bevat de p-waardes. Dit zijn de exact p-waarde voor differentiële expressie.
 De laatste kolom bevat de p-waarde aangepast voor meervoudige tests. Al de 
 waardes hebben berekken tot het vergelijk van WCFS1.glc met WCFS1.rib.
 ```{r beste resultaten}
+print(topTags(fitWCFS1))
+print(topTags(fitNC8))
 resWCFS1<-topTags(fitWCFS1, n = length(fitWCFS1$fitted.values))
 resNC8<-topTags(fitNC8, n = length(fitNC8$fitted.values))
 
@@ -167,12 +167,8 @@ De data van de tabellen worden opgeslagen in een excel bestand. Dit bestand
 bestaat uit 2 verschillende sheets: een sheet met alle data en een ander
 sheet met de beste waarden.
 ```{r resultaten opslaan}
-write.xlsx(fitWCFS1, "foldChanges.xlsx", sheetName = "All Data WCFS1", col.names = T,
+write.xlsx(resWCFS1, "foldChanges.xlsx", sheetName = "WCFS1", col.names = T,
            row.names = T, append = F)
-write.xlsx(resWCFS1, "foldChanges.xlsx", sheetName = "Highest Values WCFS1", col.names = T,
-           row.names = T, append = T)
-write.xlsx(fitNC8, "foldChanges.xlsx", sheetName = "All Data NC8", col.names = T,
-           row.names = T, append = T)
-write.xlsx(resNC8, "foldChanges.xlsx", sheetName = "Highest Values NC8", col.names = T,
+write.xlsx(resNC8, "foldChanges.xlsx", sheetName = "NC8", col.names = T,
            row.names = T, append = T)
 ```
