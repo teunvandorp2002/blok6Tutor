@@ -56,15 +56,20 @@ De twee kolom bevat de algemene namen van de condties (welke voedingsbodem).
 Daarna een kolom wat die de totaal aantal counts voor elk conditie bevat. De 
 laatste kolom bevat normalisatie factor waarden.  
 ```{r DGElist aanmaken}
+
 group <- factor(exp)
 print(group)
 print(summary(cnts[,2:9]))
-print(cnts[,2:9])
 firstQuartile <- c()
 for(i in 2:9) {
   firstQuartile[i-1] <- unname(quantile(cnts[,i], .25))
 }
+highEnough <- cnts[,2:9] > mean(firstQuartile)
+keep <- rowSums(highEnough) >= 4
+summary(keep)
 y <- DGEList(counts=cnts[,2:9],group=group)
+print(y)
+y <- y[keep, keep.lib.sizes=FALSE]
 print(y)
 ```
 
