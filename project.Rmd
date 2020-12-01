@@ -187,8 +187,8 @@ De data van de tabellen worden opgeslagen in een excel bestand. Dit bestand
 bestaat uit 2 verschillende sheets: een sheet met alle data en een ander
 sheet met de beste waarden.
 ```{r resultaten opslaan}
-write.xlsx(resWCFS1, "foldChanges.xlsx", sheetName = "WCFS1", col.names = T,
+write.xlsx(resWCFS1, paste0(fDir, "/foldChanges.xlsx"), sheetName = "WCFS1", col.names = T,
            row.names = T, append = F)
-write.xlsx(resNC8, "foldChanges.xlsx", sheetName = "NC8", col.names = T,
+write.xlsx(resNC8, paste0(fDir, "/foldChanges.xlsx"), sheetName = "NC8", col.names = T,
            row.names = T, append = T)
 ```
