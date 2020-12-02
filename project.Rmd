@@ -24,6 +24,7 @@ Output: welke package is ingeladen.
 library(edgeR)
 library(xlsx)
 library(rstudioapi)
+library(rafalib)
 ```
 
 ### Bestand open en inlezen
@@ -33,7 +34,6 @@ ingelezen moet wordt aangegeven, deze wordt tevens ingeladen. Dan wordt het
 bestand ingelezen en worden alle ID's van de genen eruit gehaald. Ook wordt erin 
 een andere vector de namen opgeslagen van de verschillende experimenten, dit zijn 
 de kolomnamen. 
-
 ```{r aanmaken}
 fDir <- selectDirectory(caption = "Select Directory")
 fName <- "/RNA-Seq-counts.txt"
@@ -94,7 +94,6 @@ print(summary(y$allecounts))
 print(y$samples)
 ```
 
-
 ### Matrix aanmaken
 Er wordt een matrix gemaakt. Er wordt aangegeven welke kolom welk experiment bevat. 
 Vervolgens wordt er een relatie gelegt tussen conditie (welke voedingsbodem), type
@@ -115,7 +114,6 @@ colnames(design) <- levels(y$samples$group)
 print(design)
 ```
 
-
 ### Spreidingsbreedte Bepalen
 Er wordt op drie verschillende manieren de spreidingsbreedte bepaald. De eerste
 is de common, dit is de spreiding bepaald over alle waardes en daar het gemiddelde
@@ -127,6 +125,7 @@ y <- estimateGLMCommonDisp(y,design)
 y <- estimateGLMTrendedDisp(y,design, method="power")
 y <- estimateGLMTagwiseDisp(y,design)
 ```
+
 ### Grafieken Maken
 De twee grafieken worden aangemaakt. De eerste grafiek is een multidimensionaal 
 schaaldiagram van afstanden tussen genexpressieprofielen. De experimenten zijn 
@@ -192,7 +191,17 @@ resWCFS1<-topTags(fitWCFS1, n = length(fitWCFS1$fitted.values))
 resNC8<-topTags(fitNC8, n = length(fitNC8$fitted.values))
 ```
 
-## Resultaten opslaan in excel bestand
+## Genen Clusteren
+```{r clusteren}
+dis_matrix <- dist(resWCFS1$table$logFC, method = "euclidean")
+hclust_ding <- hclust(dis_matrix, method = "average")
+plot(hclust_ding)
+dis_matrix <- dist(t(cnts[,2:9]), method = "euclidean")
+hclust_ding <- hclust(dis_matrix, method = "average")
+plot(hclust_ding)
+```
+
+## Resultaten opslaan in Excel bestand
 De data van de tabellen worden opgeslagen in een excel bestand. Dit bestand
 bestaat uit 2 verschillende sheets: een sheet met alle data en een ander
 sheet met de beste waarden.
