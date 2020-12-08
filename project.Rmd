@@ -60,24 +60,32 @@ laatste kolom bevat normalisatie factor waarden.
 group <- factor(exp)
 print(group)
 print(summary(cnts[,2:9]))
-firstQuartile <- c()
-for(i in 2:9) {
-  firstQuartile[i-1] <- unname(quantile(cnts[,i], .25))
-}
-highEnough <- cnts[,2:9] > mean(firstQuartile)
-keep <- rowSums(highEnough) >= 4
-summary(keep)
+
 y <- DGEList(counts=cnts[,2:9],group=group)
 print(y)
-y <- y[keep, keep.lib.sizes=FALSE]
-print(y)
+
 ```
 
 ### Normaliseren
 De waardes worden genormaliseerd. Dit wordt gedaan door het bijsnijden van de 
 gemiddelde van M-waarden: verwijder de laagste en hoogste waarden.
 ```{r normaliseren}
-y <- calcNormFactors(y, method="TMM" )
+y <- calcNormFactors(y, method="TMM")
+```
+
+```{r filteren low read count}
+print(summary(y$counts))
+print(summary(cnts[,2:9]))
+
+firstQuartile <- c()
+for(i in 2:9) {
+  firstQuartile[i-1] <- unname(quantile(y$counts, .25))
+}
+highEnough <- y$counts > mean(firstQuartile)
+keep <- rowSums(highEnough) >= 4
+summary(keep)
+y <- y[keep, keep.lib.sizes=FALSE]
+print(y)
 ```
 
 ### Controleren van data
@@ -121,9 +129,7 @@ van genomen. De tweede manier is om de spreiding te bepalen van het gemiddelde b
 iedere waarde op de x-as en hier vervolgens een lijn van de maken. De derde manier
 is dat er per experiment resultaat een spreiding wordt bepaald, dus per gen. 
 ```{r spreidingsbreedte}
-y <- estimateGLMCommonDisp(y,design)
-y <- estimateGLMTrendedDisp(y,design, method="power")
-y <- estimateGLMTagwiseDisp(y,design)
+y <- estimateDisp(y, design)
 ```
 
 ### Grafieken Maken
@@ -193,12 +199,31 @@ resNC8<-topTags(fitNC8, n = length(fitNC8$fitted.values))
 
 ## Genen Clusteren
 ```{r clusteren}
-dis_matrix <- dist(resWCFS1$table$logFC, method = "euclidean")
-hclust_ding <- hclust(dis_matrix, method = "average")
-plot(hclust_ding)
 dis_matrix <- dist(t(cnts[,2:9]), method = "euclidean")
-hclust_ding <- hclust(dis_matrix, method = "average")
-plot(hclust_ding)
+hclust_object <- hclust(dis_matrix, method = "average")
+plot(hclust_object)
+```
+
+## Filteren fold change en FDR-waarde
+```{r filteren resultaten}
+resWCFS1 <- data.frame(resWCFS1)
+attach(resWCFS1$table)
+resWCFS1 <- subset(resWCFS1, (logFC > 1 | logFC < -1) & FDR < 0.001)
+
+resNC8 <- data.frame(resNC8)
+attach(resNC8$table)
+resNC8 <- subset(resNC8, (logFC > 1 | logFC < -1) & FDR < 0.001)
+```
+
+## Tags toevoegen
+```{r tags}
+annotation = read.delim("WCFS1_anno.txt", header=TRUE, row.names = 1)
+
+drops <- c("X","X.1","X.2","X.3", "X.4")
+annotation <- annotation[ , !(names(annotation) %in% drops)]
+
+resWCFS1 <- cbind(resWCFS1, annotation[rownames(resWCFS1),])
+resNC8 <- cbind(resNC8, annotation[rownames(resNC8),])
 ```
 
 ## Resultaten opslaan in Excel bestand
