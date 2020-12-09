@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ### Ophalen blibliotheken
 De benodigde blibliotheken worden aangroepen. <br>  
 Output: welke package is ingeladen.
-```{r aanroepen libraries, warning=FALSE}
+```{r aanroepen libraries}
 library(edgeR)
 library(xlsx)
 library(rstudioapi)
@@ -56,14 +56,11 @@ De twee kolom bevat de algemene namen van de condties (welke voedingsbodem).
 Daarna een kolom wat die de totaal aantal counts voor elk conditie bevat. De 
 laatste kolom bevat normalisatie factor waarden.  
 ```{r DGElist aanmaken}
-
 group <- factor(exp)
 print(group)
 print(summary(cnts[,2:9]))
-
 y <- DGEList(counts=cnts[,2:9],group=group)
 print(y)
-
 ```
 
 ### Normaliseren
@@ -76,7 +73,6 @@ y <- calcNormFactors(y, method="TMM")
 ```{r filteren low read count}
 print(summary(y$counts))
 print(summary(cnts[,2:9]))
-
 firstQuartile <- c()
 for(i in 2:9) {
   firstQuartile[i-1] <- unname(quantile(y$counts, .25))
@@ -86,6 +82,7 @@ keep <- rowSums(highEnough) >= 4
 summary(keep)
 y <- y[keep, keep.lib.sizes=FALSE]
 print(y)
+print(mean(firstQuartile))
 ```
 
 ### Controleren van data
@@ -209,19 +206,28 @@ plot(hclust_object)
 resWCFS1 <- data.frame(resWCFS1)
 attach(resWCFS1$table)
 resWCFS1 <- subset(resWCFS1, (logFC > 1 | logFC < -1) & FDR < 0.001)
-
 resNC8 <- data.frame(resNC8)
 attach(resNC8$table)
 resNC8 <- subset(resNC8, (logFC > 1 | logFC < -1) & FDR < 0.001)
+
+```
+
+## KEGG mapper
+```{r KEGG mapper}
+library(pathview)
+
+mypathway <- "lpl00010"
+logFC <- resNC8$logFC
+names(logFC) <- row.names(resNC8)
+pathview(gene.data = logFC, species = "lpl", pathway = mypathway,  gene.idtype = "KEGG")
+
 ```
 
 ## Tags toevoegen
 ```{r tags}
 annotation = read.delim("WCFS1_anno.txt", header=TRUE, row.names = 1)
-
 drops <- c("X","X.1","X.2","X.3", "X.4")
 annotation <- annotation[ , !(names(annotation) %in% drops)]
-
 resWCFS1 <- cbind(resWCFS1, annotation[rownames(resWCFS1),])
 resNC8 <- cbind(resNC8, annotation[rownames(resNC8),])
 ```
@@ -234,5 +240,8 @@ sheet met de beste waarden.
 write.xlsx(resWCFS1, paste0(fDir, "/foldChanges.xlsx"), sheetName = "WCFS1", col.names = T,
            row.names = T, append = F)
 write.xlsx(resNC8, paste0(fDir, "/foldChanges.xlsx"), sheetName = "NC8", col.names = T,
-           row.names = T, append = T)
+          row.names = T, append = T)
 ```
+
+
+
