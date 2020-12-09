@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ### Ophalen blibliotheken
 De benodigde blibliotheken worden aangroepen. <br>  
 Output: welke package is ingeladen.
-```{r aanroepen libraries}
+```{r aanroepen libraries, warning=FALSE}
 library(edgeR)
 library(xlsx)
 library(rstudioapi)
