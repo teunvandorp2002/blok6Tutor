@@ -430,7 +430,19 @@ Output: welke package is ingeladen.</p>
 <pre><code>## Loading required package: limma</code></pre>
 <pre class="r"><code>library(xlsx)
 library(rstudioapi)
-library(rafalib)</code></pre>
+library(rafalib)
+library(pathview)</code></pre>
+<pre><code>## </code></pre>
+<pre><code>## ##############################################################################
+## Pathview is an open source software package distributed under GNU General
+## Public License version 3 (GPLv3). Details of GPLv3 is available at
+## http://www.gnu.org/licenses/gpl-3.0.html. Particullary, users are required to
+## formally cite the original Pathview paper (not just mention it) in publications
+## or products. For details, do citation(&quot;pathview&quot;) within R.
+## 
+## The pathview downloads and uses KEGG data. Non-academic uses may require a KEGG
+## license agreement (details at http://www.kegg.jp/kegg/legal.html).
+## ##############################################################################</code></pre>
 </div>
 <div id="bestand-open-en-inlezen" class="section level3">
 <h3>Bestand open en inlezen</h3>
@@ -682,18 +694,6 @@ resNC8 &lt;- subset(resNC8, (logFC &gt; 1 | logFC &lt; -1) &amp; FDR &lt; 0.001)
 </div>
 <div id="kegg-mapper" class="section level2">
 <h2>KEGG mapper</h2>
-<pre class="r"><code>library(pathview)</code></pre>
-<pre><code>## </code></pre>
-<pre><code>## ##############################################################################
-## Pathview is an open source software package distributed under GNU General
-## Public License version 3 (GPLv3). Details of GPLv3 is available at
-## http://www.gnu.org/licenses/gpl-3.0.html. Particullary, users are required to
-## formally cite the original Pathview paper (not just mention it) in publications
-## or products. For details, do citation(&quot;pathview&quot;) within R.
-## 
-## The pathview downloads and uses KEGG data. Non-academic uses may require a KEGG
-## license agreement (details at http://www.kegg.jp/kegg/legal.html).
-## ##############################################################################</code></pre>
 <pre class="r"><code>mypathway &lt;- &quot;lpl00010&quot;
 
 logFC &lt;- resWCFS1$logFC
@@ -701,11 +701,33 @@ names(logFC) &lt;- row.names(resWCFS1)
 pathview(gene.data = logFC, species = &quot;lpl&quot;, pathway = mypathway,  gene.idtype = &quot;KEGG&quot;, out.suffix = &quot;WCFS1&quot;)</code></pre>
 <pre><code>## Info: Working in directory C:/Users/teun4/Documents/GitHub/blok6Tutor</code></pre>
 <pre><code>## Info: Writing image file lpl00010.WCFS1.png</code></pre>
+<pre class="r"><code>pathview(gene.data = logFC, species = &quot;lpl&quot;, pathway = &quot;lpl00020&quot;,  gene.idtype = &quot;KEGG&quot;, out.suffix = &quot;WCFS1.CytrateCycle&quot;)</code></pre>
+<pre><code>## Info: Working in directory C:/Users/teun4/Documents/GitHub/blok6Tutor</code></pre>
+<pre><code>## Info: Writing image file lpl00020.WCFS1.CytrateCycle.png</code></pre>
+<pre class="r"><code>pathview(gene.data = logFC, species = &quot;lpl&quot;, pathway = &quot;lpl00030&quot;,  gene.idtype = &quot;KEGG&quot;, out.suffix = &quot;WCFS1.PentosePhosphate&quot;)</code></pre>
+<pre><code>## Info: Working in directory C:/Users/teun4/Documents/GitHub/blok6Tutor</code></pre>
+<pre><code>## Info: Writing image file lpl00030.WCFS1.PentosePhosphate.png</code></pre>
+<pre class="r"><code>pathview(gene.data = logFC, species = &quot;lpl&quot;, pathway = &quot;lpl00190&quot;,  gene.idtype = &quot;KEGG&quot;, out.suffix = &quot;WCFS1.OxidativePhosphorilation&quot;)</code></pre>
+<pre><code>## Info: Working in directory C:/Users/teun4/Documents/GitHub/blok6Tutor</code></pre>
+<pre><code>## Info: Writing image file lpl00190.WCFS1.OxidativePhosphorilation.png</code></pre>
+<pre><code>## Info: some node width is different from others, and hence adjusted!
+## Info: some node width is different from others, and hence adjusted!</code></pre>
 <pre class="r"><code>logFC &lt;- resNC8$logFC
 names(logFC) &lt;- row.names(resNC8)
 pathview(gene.data = logFC, species = &quot;lpl&quot;, pathway = mypathway,  gene.idtype = &quot;KEGG&quot;, out.suffix = &quot;NC8&quot;)</code></pre>
 <pre><code>## Info: Working in directory C:/Users/teun4/Documents/GitHub/blok6Tutor</code></pre>
 <pre><code>## Info: Writing image file lpl00010.NC8.png</code></pre>
+<pre class="r"><code>pathview(gene.data = logFC, species = &quot;lpl&quot;, pathway = &quot;lpl00020&quot;,  gene.idtype = &quot;KEGG&quot;, out.suffix = &quot;NC8.CytrateCycle&quot;)</code></pre>
+<pre><code>## Info: Working in directory C:/Users/teun4/Documents/GitHub/blok6Tutor</code></pre>
+<pre><code>## Info: Writing image file lpl00020.NC8.CytrateCycle.png</code></pre>
+<pre class="r"><code>pathview(gene.data = logFC, species = &quot;lpl&quot;, pathway = &quot;lpl00030&quot;,  gene.idtype = &quot;KEGG&quot;, out.suffix = &quot;NC8.PentosePhosphate&quot;)</code></pre>
+<pre><code>## Info: Working in directory C:/Users/teun4/Documents/GitHub/blok6Tutor</code></pre>
+<pre><code>## Info: Writing image file lpl00030.NC8.PentosePhosphate.png</code></pre>
+<pre class="r"><code>pathview(gene.data = logFC, species = &quot;lpl&quot;, pathway = &quot;lpl00190&quot;,  gene.idtype = &quot;KEGG&quot;, out.suffix = &quot;NC8.OxidativePhosphorilation&quot;)</code></pre>
+<pre><code>## Info: Working in directory C:/Users/teun4/Documents/GitHub/blok6Tutor</code></pre>
+<pre><code>## Info: Writing image file lpl00190.NC8.OxidativePhosphorilation.png</code></pre>
+<pre><code>## Info: some node width is different from others, and hence adjusted!
+## Info: some node width is different from others, and hence adjusted!</code></pre>
 </div>
 <div id="tags-toevoegen" class="section level2">
 <h2>Tags toevoegen</h2>
@@ -722,6 +744,22 @@ resNC8 &lt;- cbind(resNC8, annotation[rownames(resNC8),])</code></pre>
            row.names = T, append = F)
 write.xlsx(resNC8, paste0(fDir, &quot;/foldChanges.xlsx&quot;), sheetName = &quot;NC8&quot;, col.names = T,
           row.names = T, append = T)</code></pre>
+<pre><code>glu &lt;- c()
+for (i in 1:nrow(fit$coefficients)) {
+  glu[length(glu)+1] &lt;- fit$coefficients[i,1]
+  glu[length(glu)+1] &lt;- fit$coefficients[i,3]
+}
+rib &lt;- c()
+for (i in 1:nrow(fit$coefficients)) {
+  rib[length(rib)+1] &lt;- fit$coefficients[i,2]
+  rib[length(rib)+1] &lt;- fit$coefficients[i,4]
+}
+
+gluRib &lt;- matrix(data = c(glu, rib), ncol = 2)
+colnames(gluRib) &lt;- c(&quot;glu&quot;, &quot;rib&quot;)
+
+mcGluRib &lt;- makeContrasts(exp.r = glu-rib, levels = design)
+fitGluRib &lt;- glmLRT(gluRib, contrast = mcGluRib)</code></pre>
 </div>
 
 

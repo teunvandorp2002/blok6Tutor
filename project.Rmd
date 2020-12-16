@@ -14,7 +14,7 @@ deze code verkregen worden hebben dus betrekking op die resultaten. Uit deze
 resultaten kan uiteindelijk afgeleid worden of er verschil in genexpressie is en 
 welke genen up of down gereguleerd zijn of gelijk zijn gebleven in de experessie. 
   
-  ```{r setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ### Ophalen blibliotheken
@@ -25,6 +25,7 @@ library(edgeR)
 library(xlsx)
 library(rstudioapi)
 library(rafalib)
+library(pathview)
 ```
 
 ### Bestand open en inlezen
@@ -214,17 +215,27 @@ resNC8 <- subset(resNC8, (logFC > 1 | logFC < -1) & FDR < 0.001)
 
 ## KEGG mapper
 ```{r KEGG mapper}
-library(pathview)
-
 mypathway <- "lpl00010"
 
 logFC <- resWCFS1$logFC
 names(logFC) <- row.names(resWCFS1)
 pathview(gene.data = logFC, species = "lpl", pathway = mypathway,  gene.idtype = "KEGG", out.suffix = "WCFS1")
 
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00020",  gene.idtype = "KEGG", out.suffix = "WCFS1.CytrateCycle")
+
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00030",  gene.idtype = "KEGG", out.suffix = "WCFS1.PentosePhosphate")
+
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00190",  gene.idtype = "KEGG", out.suffix = "WCFS1.OxidativePhosphorilation")
+
 logFC <- resNC8$logFC
 names(logFC) <- row.names(resNC8)
 pathview(gene.data = logFC, species = "lpl", pathway = mypathway,  gene.idtype = "KEGG", out.suffix = "NC8")
+
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00020",  gene.idtype = "KEGG", out.suffix = "NC8.CytrateCycle")
+
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00030",  gene.idtype = "KEGG", out.suffix = "NC8.PentosePhosphate")
+
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00190",  gene.idtype = "KEGG", out.suffix = "NC8.OxidativePhosphorilation")
 ```
 
 ## Tags toevoegen
@@ -248,4 +259,24 @@ write.xlsx(resNC8, paste0(fDir, "/foldChanges.xlsx"), sheetName = "NC8", col.nam
 ```
 
 
+
+
+```{}
+glu <- c()
+for (i in 1:nrow(fit$coefficients)) {
+  glu[length(glu)+1] <- fit$coefficients[i,1]
+  glu[length(glu)+1] <- fit$coefficients[i,3]
+}
+rib <- c()
+for (i in 1:nrow(fit$coefficients)) {
+  rib[length(rib)+1] <- fit$coefficients[i,2]
+  rib[length(rib)+1] <- fit$coefficients[i,4]
+}
+
+gluRib <- matrix(data = c(glu, rib), ncol = 2)
+colnames(gluRib) <- c("glu", "rib")
+
+mcGluRib <- makeContrasts(exp.r = glu-rib, levels = design)
+fitGluRib <- glmLRT(gluRib, contrast = mcGluRib)
+```
 
