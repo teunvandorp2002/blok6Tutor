@@ -215,11 +215,9 @@ resNC8 <- subset(resNC8, (logFC > 1 | logFC < -1) & FDR < 0.001)
 
 ## KEGG mapper
 ```{r KEGG mapper}
-mypathway <- "lpl00010"
-
 logFC <- resWCFS1$logFC
 names(logFC) <- row.names(resWCFS1)
-pathview(gene.data = logFC, species = "lpl", pathway = mypathway,  gene.idtype = "KEGG", out.suffix = "WCFS1")
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00010",  gene.idtype = "KEGG", out.suffix = "WCFS1")
 
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00020",  gene.idtype = "KEGG", out.suffix = "WCFS1.CytrateCycle")
 
@@ -227,15 +225,19 @@ pathview(gene.data = logFC, species = "lpl", pathway = "lpl00030",  gene.idtype 
 
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00190",  gene.idtype = "KEGG", out.suffix = "WCFS1.OxidativePhosphorilation")
 
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl01100",  gene.idtype = "KEGG", out.suffix = "WCFS1.all")
+
 logFC <- resNC8$logFC
 names(logFC) <- row.names(resNC8)
-pathview(gene.data = logFC, species = "lpl", pathway = mypathway,  gene.idtype = "KEGG", out.suffix = "NC8")
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00010",  gene.idtype = "KEGG", out.suffix = "NC8")
 
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00020",  gene.idtype = "KEGG", out.suffix = "NC8.CytrateCycle")
 
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00030",  gene.idtype = "KEGG", out.suffix = "NC8.PentosePhosphate")
 
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00190",  gene.idtype = "KEGG", out.suffix = "NC8.OxidativePhosphorilation")
+
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl01100",  gene.idtype = "KEGG", out.suffix = "NC8.all")
 ```
 
 ## Tags toevoegen
