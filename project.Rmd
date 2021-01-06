@@ -26,6 +26,8 @@ library(xlsx)
 library(rstudioapi)
 library(rafalib)
 library(pathview)
+library(ggplot2)
+library(factoextra)
 ```
 
 ### Bestand open en inlezen
@@ -176,6 +178,29 @@ mcNC8 <- makeContrasts(exp.r=NC8.glc-NC8.rib, levels=design)
 fitNC8 <- glmLRT(fit, contrast=mcNC8)
 ```
 
+## MA Plot
+```{r MA plot}
+test = c()
+for (i in 0:length( fitWCFS1$table$logFC)){
+  test[i] <- i
+}
+plot(test, fitWCFS1$table$logFC)
+
+ble <- fitWCFS1$table$logFC
+data <- data.frame(fitWCFS1)
+
+ggplot(data, aes(x = test, y = logFC))  + geom_point() + scale_y_continuous(breaks = round(seq(min(data), max(data), by = 0.5),0))
+
+
+test = c()
+for (i in 0:length( fitNC8$table$logFC)){
+  test[i] <- i
+}
+plot(test, fitNC8$table$logFC, ygap.axis = 1)
+
+
+```
+
 
 ## Beste resultaten weergeven
 ALs laatste wordt het resultaat weergegeven, welke voortkomt uit het model.Er 
@@ -200,7 +225,12 @@ resNC8<-topTags(fitNC8, n = length(fitNC8$fitted.values))
 dis_matrix <- dist(t(cnts[,2:9]), method = "euclidean")
 hclust_object <- hclust(dis_matrix, method = "average")
 plot(hclust_object)
+
+km.res <- kmeans(dis_matrix, 4, nstart = 1)
+fviz_cluster(km.res, data = dis_matrix, geom = "point")
+km.res$cluster
 ```
+
 
 ## Filteren fold change en FDR-waarde
 ```{r filteren resultaten}
@@ -217,7 +247,7 @@ resNC8 <- subset(resNC8, (logFC > 1 | logFC < -1) & FDR < 0.001)
 ```{r KEGG mapper}
 logFC <- resWCFS1$logFC
 names(logFC) <- row.names(resWCFS1)
-pathview(gene.data = logFC, species = "lpl", pathway = "lpl00010",  gene.idtype = "KEGG", out.suffix = "WCFS1")
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00010",  gene.idtype = "KEGG", out.suffix = "WCFS1.Glycolysis_Gluconeogenesis")
 
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00020",  gene.idtype = "KEGG", out.suffix = "WCFS1.CytrateCycle")
 
@@ -225,11 +255,11 @@ pathview(gene.data = logFC, species = "lpl", pathway = "lpl00030",  gene.idtype 
 
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00190",  gene.idtype = "KEGG", out.suffix = "WCFS1.OxidativePhosphorilation")
 
-pathview(gene.data = logFC, species = "lpl", pathway = "lpl01100",  gene.idtype = "KEGG", out.suffix = "WCFS1.all")
+#pathview(gene.data = logFC, species = "lpl", pathway = "lpl01100",  gene.idtype = "KEGG", out.suffix = "WCFS1.all")
 
 logFC <- resNC8$logFC
 names(logFC) <- row.names(resNC8)
-pathview(gene.data = logFC, species = "lpl", pathway = "lpl00010",  gene.idtype = "KEGG", out.suffix = "NC8")
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00010",  gene.idtype = "KEGG", out.suffix = "NC8.Glycolysis_Gluconeogenesis")
 
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00020",  gene.idtype = "KEGG", out.suffix = "NC8.CytrateCycle")
 
@@ -237,7 +267,7 @@ pathview(gene.data = logFC, species = "lpl", pathway = "lpl00030",  gene.idtype 
 
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00190",  gene.idtype = "KEGG", out.suffix = "NC8.OxidativePhosphorilation")
 
-pathview(gene.data = logFC, species = "lpl", pathway = "lpl01100",  gene.idtype = "KEGG", out.suffix = "NC8.all")
+#pathview(gene.data = logFC, species = "lpl", pathway = "lpl01100",  gene.idtype = "KEGG", out.suffix = "NC8.all")
 ```
 
 ## Tags toevoegen
