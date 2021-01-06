@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ### Ophalen blibliotheken
 De benodigde blibliotheken worden aangroepen. <br>  
 Output: welke package is ingeladen.
-```{r aanroepen libraries}
+```{r aanroepen libraries, message=FALSE, warning=FALSE}
 library(edgeR)
 library(xlsx)
 library(rstudioapi)
@@ -244,7 +244,7 @@ resNC8 <- subset(resNC8, (logFC > 1 | logFC < -1) & FDR < 0.001)
 ```
 
 ## KEGG mapper
-```{r KEGG mapper}
+```{r KEGG mapper, message=FALSE}
 logFC <- resWCFS1$logFC
 names(logFC) <- row.names(resWCFS1)
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00010",  gene.idtype = "KEGG", out.suffix = "WCFS1.Glycolysis_Gluconeogenesis")
