@@ -60,7 +60,7 @@ Daarna een kolom die de totaal aantal counts voor elk conditie bevat. De
 laatste kolom bevat normalisatie factor waarden.  
 ```{r DGElist aanmaken}
 group <- factor(exp)
-print(group)5151
+print(group)
 print(summary(cnts[,2:9]))
 y <- DGEList(counts=cnts[,2:9],group=group)
 print(y)
@@ -322,4 +322,6 @@ write.xlsx(resWCFS1, paste0(fDir, "/foldChanges.xlsx"), sheetName = "WCFS1",
            col.names = T, row.names = T, append = F)
 write.xlsx(resNC8, paste0(fDir, "/foldChanges.xlsx"), sheetName = "NC8", 
            col.names = T, row.names = T, append = T)
+write.xlsx(km.res$cluster, paste0(fDir, "/foldChanges.xlsx"), sheetName = "K-means Clustering", 
+           col.names = F, row.names = T, append = T)
 ```
