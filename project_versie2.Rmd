@@ -253,11 +253,9 @@ plot(hclust_object)
 
 km.res <- kmeans(dis_matrix, 4, nstart = 1)
 fviz_cluster(km.res, data = dis_matrix, geom = "point")
-km.res$cluster
 
 km.res <- kmeans(y, 4, nstart = 1)
 fviz_cluster(km.res, data = y, geom = "point")
-km.res$cluster
 ```
 
 
