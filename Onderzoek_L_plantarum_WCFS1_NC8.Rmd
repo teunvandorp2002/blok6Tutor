@@ -1,0 +1,325 @@
+---
+title: "Genexpressie van L. plantarum WCFS1 en NC8 bij glucose en ribose"
+author: "Teun van Dorp, Luc Hengeveld, Michelle Memelink"
+date: "16/01/2021"
+output:
+  word_document: default
+  html_document: default
+---
+### Algemeen doel
+Het doel is om te onderzoeken of er verschil is in genexpressie bij de bacterie
+*Lactobacillus plantarum* WCFS1 en NC8, als deze op verschillende voedingsbodems groeien.
+De twee gebruikte soorten voedingsbodem zijn glucose en ribose. Er is op 
+beide bodems twee keer een experiment uitgevoerd per stam. De resultaten die hieruit 
+zijn gekomen worden gebruikt in dit onderzoek. De resultaten die door middel van 
+deze code verkregen worden hebben dus betrekking op die resultaten. Uit deze 
+resultaten kan uiteindelijk afgeleid worden welke genen up of down gereguleerd 
+zijn of gelijk zijn gebleven in de expressie. 
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Ophalen bibliotheken
+De benodigde bibliotheken worden aangeroepen. <br>  
+Output: welke package is ingeladen.
+```{r aanroepen libraries, message=FALSE, warning=FALSE}
+library(edgeR)
+library(xlsx)
+library(rstudioapi)
+library(rafalib)
+library(pathview)
+library(ggplot2)
+library(factoextra)
+```
+
+### Bestand openen en inlezen
+Er kan via een pop-up een map geselecteerd worden waarin het bestand staat met de 
+naam "RNA-Seq-counts.txt". Vervolgens wordt er dus de naam van het bestand dat 
+ingelezen moet worden aangegeven, deze wordt tevens ingeladen. Dan wordt het
+bestand ingelezen en worden alle ID's van de genen eruit gehaald. Ook wordt in 
+een andere vector de namen opgeslagen van de verschillende experimenten, dit zijn 
+de kolomnamen. 
+```{r bestand open en inlezen}
+fDir <- selectDirectory(caption = "Select Directory")
+fName <- "/RNA-Seq-counts.txt"
+cnts <- read.delim(paste0(fDir,fName), comment.char="#")
+row.names(cnts) <- cnts[,"ID"]
+exp <- c("WCFS1.glc", "WCFS1.glc", "WCFS1.rib", "WCFS1.rib", "NC8.glc", "NC8.glc", "NC8.rib", "NC8.rib")
+```
+
+### DGElist aanmaken
+Er wordt een DGElist gemaakt, door gebruik te maken van EdgeR. Het is een lijst 
+welke de genen bevat met de counts die geanalyseerd moeten worden. De aangemaakte 
+vector met de kolomnamen  wordt meegegeven voor het maken ven de DGElist.
+<br>
+Output: als eerst worden de groepen aangegeven en de vier niveaus. Vervolgens 
+wordt er van elk experiment apart een samenvatting gegeven, deze bevat onder andere
+het gemiddelde, de mediaan en de eerste en derde kwartiel. Vervolgens wordt er de
+gemaakte DGElist getoond. Er wordt daarna ook per experiment verkregen 
+resultaten gegeven. De tweede bevat een kolom met de naam van het experiment. 
+De tweede kolom bevat de algemene namen van de condities (welke voedingsbodem). 
+Daarna een kolom die de totaal aantal counts voor elk conditie bevat. De 
+laatste kolom bevat normalisatie factor waarden.  
+```{r DGElist aanmaken}
+group <- factor(exp)
+print(group)
+print(summary(cnts[,2:9]))
+y <- DGEList(counts=cnts[,2:9],group=group)
+print(y)
+```
+
+### Normaliseren
+De waardes worden genormaliseerd. Dit wordt gedaan door het bijsnijden van de 
+gemiddelde van M-waarden: verwijderen van de laagste en hoogste waarden.
+```{r normaliseren}
+y <- calcNormFactors(y, method="TMM")
+lijst_norm_all <- y
+```
+
+### Filteren op de low read counts
+Van de genormaliseerde data worden de genen uit de data set verwijderd als ze onder
+het gemiddelde eerste kwartiel vallen. Het gemiddelde is berekend over alle acht
+de experimenten. Als de waarde er bovenligt dan is die TRUE, als de waarde er onder valt 
+dan is die FALSE. Alle genen die een FALSE hebben gekregen worden niet bewaard in
+de data set.
+<br>
+Output: een samenvatting welke onder andere de kwartielen gemiddelde, hoogste en 
+laagste waardes bevatten per experiment. Vervolgens wordt er aangegeven hoeveel
+genen FALSE en TRUE hebben gekregen. Daarna wordt de DGElist weer weergeven op
+dezelfde manier als eerder hierboven benoemt onder "DGElist aanmaken". 
+```{r filteren low read count}
+print(summary(y$counts))
+firstQuartile <- c()
+for(i in 2:9) {
+  firstQuartile[i-1] <- unname(quantile(y$counts, .25))
+}
+highEnough <- y$counts > mean(firstQuartile)
+keep <- rowSums(highEnough) >= 4
+summary(keep)
+y <- y[keep, keep.lib.sizes=FALSE]
+print(y)
+```
+
+### Controleren van data
+Er wordt gekeken of de data juist is. Er wordt gecontroleerd of het inlezen
+en normaliseren op de juiste wijze is verlopen. <br>  
+Output: Er wordt per experiment resultaten getoond. De tweede 
+bevat een kolom met de naam van de experiment. De twee kolom bevat de 
+algemene namen van de condities (welke voedingsbodem). Daarna een kolom wat die
+de totaal aantal counts voor elk conditie bevat. De laatste kolom 
+bevat normalisatie factor waardes. 
+```{r controleren van data}
+print(y$samples)
+```
+
+### Matrix aanmaken
+Er wordt een matrix gemaakt. Er wordt aangegeven welke kolom welk experiment bevat. 
+Vervolgens wordt er een relatie gelegd tussen conditie (welke voedingsbodem), type
+stam en de experimenten. Er wordt aangegeven welke experimenten gelijk aan elkaar
+zijn gekeken naar de conditie, dus een groep glucose en ribose. <br> 
+Output: een matrix Met als eerste kolom de namen van de experimenten. De tweede 
+kolom bevat de conditie glucose voor NC8. De derde kolom bevat de conditie ribose 
+voor NC8. de Vierde kolom bevat de conditie glucose voor WCFS1 en de laatste 
+kolom bevat de conditie ribose voor WCFS1. Met een één wordt aangegeven dat, dat 
+experiment bij die conditie en stam hoort. 
+Vervolgens wordt er aangegeven hoeveel kolommen data bevatten. De kolommen met 
+de condities hebben minstens één, één erin staan, dus niet alle waardes in de 
+kolom zijn nul in de matrix. Als laatste wordt er voor gezorgd dat elk niveau 
+met de basislijnniveau wordt gecontrasteerd.
+```{r matrix aanmaken}
+design <- model.matrix(~0+group, data=y$samples)
+colnames(design) <- levels(y$samples$group)
+print(design)
+```
+
+### Spreidingsbreedte Bepalen
+Er wordt op drie verschillende manieren de spreidingsbreedte bepaald. De eerste
+is de common, dit is de spreiding bepaald over alle waardes en daar het gemiddelde
+van genomen. De tweede manier is om de spreiding te bepalen van het gemiddelde bij 
+iedere waarde op de x-as en hier vervolgens een lijn van de maken. De derde manier
+is dat er per experiment resultaat een spreiding wordt bepaald, dus per gen. 
+```{r spreidingsbreedte}
+spreiding <- estimateDisp(y, design)
+```
+
+### Grafieken Maken (PCA en BCV)
+De twee grafieken worden aangemaakt. De eerste grafiek is een multidimensionaal 
+schaaldiagram van afstanden tussen genexpressieprofielen. De experimenten zijn 
+op een tweedimensionale scatterplot geplot, zodat de afstanden op de plot de 
+typische log2-voudige veranderingen tussen de experimenten benaderen. De tweede
+grafiek is een plot welke biologische variatiecoëfficiënt toont. De genewise 
+biologische variatiecoëfficiënt (BCV) zijn uitgezet tegen de overvloed aan genen
+(in log2 tellingen per miljoen). <br>
+Output: in de eerste grafiek als er gekeken wordt naar de eerste dimensie, is
+te zien dat zowel glucose als ribose experimenten bijna dezelfde waarde hebben. 
+Echter is er een groot verschil te zien in de waarde gekeken naar glucose ten 
+opzichten van ribose. Dit betekend dat er sprake is van verschillende 
+genexpressie. Als er gekeken wordt naar de tweede dimensie, is te zien dat bij zowel 
+de ribose experimenten als de glucose experimenten bijna dezelfde waarden hebben. 
+Echter is er wel verschil zichtbaar tussen glucose en ribose, maar dit bevat een
+minder groot afstand dan het verschil gekeken naar de eerste dimensie tussen 
+glucose en ribose, Dus kan er met zekerheid gesteld worden dat er spraken is 
+van verschil in genexpressie. Ook is te zien dan de experimenten van de stammen 
+rond dezelfde waarde liggen gekeken naar de tweede dimensie. 
+In de tweede grafiek zijn de verschillende spreidingswaardes 
+(variatiecoëfficiënt) getoond. De x-as geeft aan hoe vaak bepaald gen is geteld. 
+De y-as geeft de mate van spreiding aan. 
+```{r plot}
+plotMDS(spreiding)
+plotBCV(spreiding)
+```
+
+### Fit data
+Op basis van de design matrix en de samples, wordt er een model lijn (lineaire) 
+gemaakt hoe de waardes zich tot elkaar verhouden. 
+```{r fit data}
+fit <- glmFit(spreiding,design)
+```
+
+### Bepalen van de fold change
+De input is het gemaakte model. Er wordt aangegeven wat er gemeten moet worden, 
+dit is het verschil in genexpressie tussen glucose en ribose bij WCFS1 en bij NC8.
+Dit verschil is de fold change. Vervolgens wordt het model passende gemaakt en 
+geef je het vorm. 
+```{r bepalen fold change}
+mcWCFS1 <- makeContrasts(exp.r=WCFS1.glc-WCFS1.rib, levels=design)
+fitWCFS1 <- glmLRT(fit, contrast=mcWCFS1)
+mcNC8 <- makeContrasts(exp.r=NC8.glc-NC8.rib, levels=design)
+fitNC8 <- glmLRT(fit, contrast=mcNC8)
+```
+
+### MA Plot
+Er worden MA grafieken gemaakt waarin afgelezen kan worden welke fold change
+gekozen kan worden om nog genoeg genen in de data set te houden en welke een goede
+FDR waarde bevatten, maar ook dat je genen pakt met de hoge en lage fold change 
+waardes. Alle genen die tussen de twee waardes liggen kunnen er uit gefilterd worden.
+<br>
+Output: MA plot, met op de y-as de fold change en op de x-as het aantal genen.
+Eerste gen in de tabel is nummer 1 en de tweede nummer 2 enzovoort. De eerste
+grafiek behoord bij WCFS1 en de tweede grafiek met dezelfde opbouw behoort bij
+NC8.
+
+```{r MA plot}
+Gen_nummer = c()
+for (i in 0:length( fitWCFS1$table$logFC)){
+  Gen_nummer[i] <- i
+}
+data <- data.frame(fitWCFS1)
+ggplot <- ggplot(data, aes(x = Gen_nummer, y = logFC))  + geom_point() + scale_y_continuous(breaks = round(seq(min(data), max(data), by = 0.5),0))
+print(ggplot + ggtitle("MA plot WCFS1"))
+Gen_nummer = c()
+for (i in 0:length( fitNC8$table$logFC)){
+  Gen_nummer[i] <- i
+}
+data <- data.frame(fitNC8)
+ggplot <- ggplot(data, aes(x = Gen_nummer, y = logFC))  + geom_point() + scale_y_continuous(breaks = round(seq(min(data), max(data), by = 0.5),0))
+print(ggplot + ggtitle("MA plot NC8"))
+```
+
+
+### Beste resultaten weergeven
+Als laatste wordt het resultaat weergegeven, wat voortkomt uit het model. Er 
+komt als resultaat een tabel met alle genen en de bijbehorende waardes uit. Er
+wordt per stam een tabel aangemaakt namelijk WCFS1.rib met WCFS1.glc en 
+NC8.rib met NC8.glc.<br>
+Output: de eerste kolom bevat de gen ID's. De tweede kolom bevat de log fold 
+change waardes, dus of een gen up gereguleerd of down gereguleerd is of gelijk 
+gebleven. De derde kolom bevat de verschillen in counts, dus hoe vaak gen
+geteld is. De vijfde kolom bevat de p-waardes. Dit zijn de exact p-waarde 
+voor differentiële expressie. De laatste kolom bevat de p-waarde aangepast 
+voor meervoudige tests. 
+```{r beste resultaten}
+print(topTags(fitWCFS1))
+print(topTags(fitNC8))
+resWCFS1<-topTags(fitWCFS1, n = length(fitWCFS1$fitted.values))
+resNC8<-topTags(fitNC8, n = length(fitNC8$fitted.values))
+```
+
+### Genen Clusteren
+Aan de hand van de matrix welke de afstanden bevat is er op twee manieren geclusterd,
+namelijk hiërarchisch geclusterd en via de methode "K means". Er is vervolgens ook
+nog met de methode "K means" een clustering gemaakt met alle genen. 
+<br>
+Output: de eerste grafiek geeft het resultaat van het hiërarchisch clusteren weer, waarin gezien kan
+worden welke experimenten het meeste op elkaar lijken enzovoort. Dit geldt hetzelfde
+voor de tweede grafiek, maar dan met de "K means" methode. De laatste grafiek 
+geeft weer welke genen bij elkaar horen tot een cluster, ook met de "K means"
+methode is dit weergegeven. 
+```{r clusteren}
+dis_matrix <- dist(t(lijst_norm_all$counts[,1:8]), method = "euclidean")
+hclust_object <- hclust(dis_matrix, method = "average")
+plot(hclust_object)
+km.res <- kmeans(dis_matrix, 4, nstart = 1)
+fviz_cluster(km.res, data = dis_matrix, geom = "point")
+km.res$cluster
+km.res <- kmeans(y, 4, nstart = 1)
+fviz_cluster(km.res, data = y, geom = "point")
+```
+
+
+### Filteren fold change en FDR-waarde
+Aan de hand van de MA plot is ervoor gekozen op alles tussen de 1 en de -1 aan 
+fold change weg te filteren en als de FDR waarde groter is dan 0,001 wordt het
+gen er ook uitgefilterd, dus meer richting de nul. de overgebleven genen worden 
+weer in een data frame gezet. Er is uiteindelijk een data frame voor WCFS1 en NC8.
+```{r filteren resultaten}
+resWCFS1 <- data.frame(resWCFS1)
+attach(resWCFS1$table)
+resWCFS1 <- subset(resWCFS1, (logFC > 1 | logFC < -1) & FDR < 0.001)
+resNC8 <- data.frame(resNC8)
+attach(resNC8$table)
+resNC8 <- subset(resNC8, (logFC > 1 | logFC < -1) & FDR < 0.001)
+```
+
+### KEGG mapper
+Met de overgebleven genen zijn KEGG pathways bekeken aan de hand van de fold 
+change waardes. Er is voor zowel WCFS1 en NC8 vier pathways bekeken, namelijk Glycolyse / Gluconeogenese, citroenzuurcyclus en pentosefosfaat. 
+<br>
+Output: lokaal worden de acht pathways opgeslagen. met groen wordt aangegeven
+dat er een hogere genexpressie is bij ribose en met rood wordt aangegeven dat de
+genexpressie bij glucose hoger is en met geen kleur wordt aangegeven dat het gelijk
+is. 
+```{r KEGG mapper, message=FALSE}
+logFC <- resWCFS1$logFC
+names(logFC) <- row.names(resWCFS1)
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00010",  gene.idtype = "KEGG", out.suffix = "WCFS1.Glycolysis_Gluconeogenesis")
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00020",  gene.idtype = "KEGG", out.suffix = "WCFS1.CytrateCycle")
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00030",  gene.idtype = "KEGG", out.suffix = "WCFS1.PentosePhosphate")
+logFC <- resNC8$logFC
+names(logFC) <- row.names(resNC8)
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00010",  gene.idtype = "KEGG", out.suffix = "NC8.Glycolysis_Gluconeogenesis")
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00020",  gene.idtype = "KEGG", out.suffix = "NC8.CytrateCycle")
+pathview(gene.data = logFC, species = "lpl", pathway = "lpl00030",  gene.idtype = "KEGG", out.suffix = "NC8.PentosePhosphate")
+```
+
+### Annotatie toevoegen aan genen
+De twee data frames, welke de fold change bevatten, krijgen extra informatie toegevoegd
+vanuit het bestand genaamd: "WCFS1_anno.txt". Dit bestand moet in dezelfde map
+staan welk aan het begin van het programma is geselecteerd. Het bestand bevat 
+informatie over de genen. Deze informatie wordt toegevoegd aan de bestaande
+data frames.
+```{r annotatie toevoegen}
+annotation = read.delim("WCFS1_anno.txt", header=TRUE, row.names = 1)
+drops <- c("X","X.1","X.2","X.3", "X.4")
+annotation <- annotation[ , !(names(annotation) %in% drops)]
+resWCFS1 <- cbind(resWCFS1, annotation[rownames(resWCFS1),])
+resNC8 <- cbind(resNC8, annotation[rownames(resNC8),])
+```
+
+### Resultaten opslaan in een Excel bestand
+De data van de tabellen, welke de fold change waardes bevatten, worden lokaal 
+opgeslagen in een Excel bestand. Dit bestand bestaat uit 2 verschillende sheets:
+een sheet met alle data en een ander sheet met de beste waarden.
+```{r resultaten opslaan}
+write.xlsx(fitWCFS1, paste0(fDir, "results.xlsx"), sheetName = "WCFS1 ongefilterd",
+           col.names = T, row.names = T, append = F)
+write.xlsx(fitNC8, paste0(fDir, "results.xlsx"), sheetName = "NC8 ongefilterd",
+           col.names = T, row.names = T, append = T)
+write.xlsx(resWCFS1, paste0(fDir, "results.xlsx"), sheetName = "WCFS1 gefilterd", 
+           col.names = T, row.names = T, append = T)
+write.xlsx(resNC8, paste0(fDir, "results.xlsx"), sheetName = "NC8 gefilterd", 
+           col.names = T, row.names = T, append = T)
+write.xlsx(km.res$cluster, paste0(fDir, "results.xlsx"), sheetName = "K-means Clustering", 
+           col.names = F, row.names = T, append = T)
+```
