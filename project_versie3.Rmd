@@ -2,7 +2,9 @@
 title: "Genexpressie van L. plantarum WCFS1 en NC8 bij glucose en ribose"
 author: "Teun van Dorp, Luc Hengeveld, Michelle Memelink"
 date: "08/01/2021"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 ### Algemeen doel
 Het doel is om te onderzoeken of er verschil is in genexpressie bij de bacterie
@@ -12,13 +14,13 @@ beide bodems twee keer een experiment uitgevoerd per stam. De resultaten die hie
 zijn gekomen worden gebruikt in dit onderzoek. De resultaten die door middel van 
 deze code verkregen worden hebben dus betrekking op die resultaten. Uit deze 
 resultaten kan uiteindelijk afgeleid worden welke genen up of down gereguleerd 
-zijn of gelijk zijn gebleven in de experessie. 
+zijn of gelijk zijn gebleven in de expressie. 
   
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-### Ophalen blibliotheken
-De benodigde blibliotheken worden aangroepen. <br>  
+### Ophalen bibliotheken
+De benodigde bibliotheken worden aangeroepen. <br>  
 Output: welke package is ingeladen.
 ```{r aanroepen libraries, message=FALSE, warning=FALSE}
 library(edgeR)
@@ -31,7 +33,7 @@ library(factoextra)
 ```
 
 ### Bestand openen en inlezen
-Er kan via een pop-up een map geselecteert worden waarin het bestand staat met de 
+Er kan via een pop-up een map geselecteerd worden waarin het bestand staat met de 
 naam "RNA-Seq-counts.txt". Vervolgens wordt er dus de naam van het bestand dat 
 ingelezen moet worden aangegeven, deze wordt tevens ingeladen. Dan wordt het
 bestand ingelezen en worden alle ID's van de genen eruit gehaald. Ook wordt in 
@@ -47,13 +49,13 @@ exp <- c("WCFS1.glc", "WCFS1.glc", "WCFS1.rib", "WCFS1.rib", "NC8.glc", "NC8.glc
 
 ### DGElist aanmaken
 Er wordt een DGElist gemaakt, door gebruik te maken van EdgeR. Het is een lijst 
-welke de genen bevat met de counts die geanaylseerd moeten worden. De aangemaakte 
+welke de genen bevat met de counts die geanalyseerd moeten worden. De aangemaakte 
 vector met de kolomnamen  wordt meegegeven voor het maken ven de DGElist.
 <br>
-Output: als eerst worden de groepen aangegeven en de vier niveau's. Vervolgens 
-wrodt er van elk experiment apart een sammenvatting gegeven, deze bevat onderandere
+Output: als eerst worden de groepen aangegeven en de vier niveaus. Vervolgens 
+wordt er van elk experiment apart een samenvatting gegeven, deze bevat onder andere
 het gemiddelde, de mediaan en de eerste en derde kwartiel. Vervolgens wordt er de
-gemaakte DGElist getoont. Er wordt daarna ook per experiment verkregen 
+gemaakte DGElist getoond. Er wordt daarna ook per experiment verkregen 
 resultaten gegeven. De tweede bevat een kolom met de naam van het experiment. 
 De tweede kolom bevat de algemene namen van de condities (welke voedingsbodem). 
 Daarna een kolom die de totaal aantal counts voor elk conditie bevat. De 
@@ -75,9 +77,9 @@ lijst_norm_all <- y
 ```
 
 ### Filteren op de low read counts
-Van de genormaliseerde data worden de genes uit de data set verwijderd als ze onder
+Van de genormaliseerde data worden de genen uit de data set verwijderd als ze onder
 het gemiddelde eerste kwartiel vallen. Het gemiddelde is berekend over alle acht
-de experimenten. Als de waarde er bovenligt dan is die TRUE, als de waarde er ondervalt 
+de experimenten. Als de waarde er bovenligt dan is die TRUE, als de waarde er onder valt 
 dan is die FALSE. Alle genen die een FALSE hebben gekregen worden niet bewaard in
 de data set.
 <br>
@@ -101,9 +103,9 @@ print(y)
 ### Controleren van data
 Er wordt gekeken of de data juist is. Er wordt gecontroleerd of het inlezen
 en normaliseren op de juiste wijze is verlopen. <br>  
-Output:Er wordt per experiment resultaten getoond. De tweede 
+Output: Er wordt per experiment resultaten getoond. De tweede 
 bevat een kolom met de naam van de experiment. De twee kolom bevat de 
-algemene namen van de condties (welke voedingsbodem). Daarna een kolom wat die
+algemene namen van de condities (welke voedingsbodem). Daarna een kolom wat die
 de totaal aantal counts voor elk conditie bevat. De laatste kolom 
 bevat normalisatie factor waardes. 
 ```{r controleren van data}
@@ -160,7 +162,7 @@ glucose en ribose, Dus kan er met zekerheid gesteld worden dat er spraken is
 van verschil in genexpressie. Ook is te zien dan de experimenten van de stammen 
 rond dezelfde waarde liggen gekeken naar de tweede dimensie. 
 In de tweede grafiek zijn de verschillende spreidingswaardes 
-(variatiecoëfficiënt) getoont. De x-as geeft aan hoe vaak bepaald gen is geteld. 
+(variatiecoëfficiënt) getoond. De x-as geeft aan hoe vaak bepaald gen is geteld. 
 De y-as geeft de mate van spreiding aan. 
 ```{r plot}
 plotMDS(spreiding)
@@ -168,7 +170,7 @@ plotBCV(spreiding)
 ```
 
 ## Fit data
-Op basis van de degin matrix en de samples, wordt er een model lijn (lineaire) 
+Op basis van de design matrix en de samples, wordt er een model lijn (lineaire) 
 gemaakt hoe de waardes zich tot elkaar verhouden. 
 ```{r fit data}
 fit <- glmFit(spreiding,design)
@@ -177,7 +179,7 @@ fit <- glmFit(spreiding,design)
 ## Bepalen van de fold change
 De input is het gemaakte model. Er wordt aangegeven wat er gemeten moet worden, 
 dit is het verschil in genexpressie tussen glucose en ribose bij WCFS1 en bij NC8.
-Dit verschil is de fold change.Vervolgens wordt het model passende gemaakt en 
+Dit verschil is de fold change. Vervolgens wordt het model passende gemaakt en 
 geef je het vorm. 
 ```{r bepalen fold change}
 mcWCFS1 <- makeContrasts(exp.r=WCFS1.glc-WCFS1.rib, levels=design)
@@ -190,7 +192,7 @@ fitNC8 <- glmLRT(fit, contrast=mcNC8)
 Er worden MA grafieken gemaakt waarin afgelezen kan worden welke fold change
 gekozen kan worden om nog genoeg genen in de data set te houden en welke een goede
 FDR waarde bevatten, maar ook dat je genen pakt met de hoge en lage fold change 
-waardes. Alle genen die tussen de twee waardes liggen kunnen er uit gefiltert worden.
+waardes. Alle genen die tussen de twee waardes liggen kunnen er uit gefilterd worden.
 <br>
 Output: MA plot, met op de y-as de fold change en op de x-as het aantal genen.
 Eerste gen in de tabel is nummer 1 en de tweede nummer 2 enzovoort. De eerste
@@ -216,12 +218,12 @@ print(ggplot + ggtitle("MA plot NC8"))
 
 
 ## Beste resultaten weergeven
-ALs laatste wordt het resultaat weergegeven, wat voortkomt uit het model.Er 
+Als laatste wordt het resultaat weergegeven, wat voortkomt uit het model. Er 
 komt als resultaat een tabel met alle genen en de bijbehorende waardes uit. Er
 wordt per stam een tabel aangemaakt namelijk WCFS1.rib met WCFS1.glc en 
 NC8.rib met NC8.glc.<br>
 Output: de eerste kolom bevat de gen ID's. De tweede kolom bevat de log fold 
-change waardes, dus of een gen up gereglueerd of down gereglueerd is of gelijk 
+change waardes, dus of een gen up gereguleerd of down gereguleerd is of gelijk 
 gebleven. De derde kolom bevat de verschillen in counts, dus hoe vaak gen
 geteld is. De vijfde kolom bevat de p-waardes. Dit zijn de exact p-waarde 
 voor differentiële expressie. De laatste kolom bevat de p-waarde aangepast 
@@ -235,10 +237,10 @@ resNC8<-topTags(fitNC8, n = length(fitNC8$fitted.values))
 
 ## Genen Clusteren
 Aan de hand van de matrix welke de afstanden bevat is er op twee manieren geclusterd,
-namelijk hiërarisch geclusterd en via de methode "K means". Er is vervolgens ook
+namelijk hiërarchisch geclusterd en via de methode "K means". Er is vervolgens ook
 nog met de methode "K means" een clustering gemaakt met alle genen. 
 <br>
-Output: de eerste grafiek geeft het resultaat van het hiërarisch clusteren weer, waarin gezien kan
+Output: de eerste grafiek geeft het resultaat van het hiërarchisch clusteren weer, waarin gezien kan
 worden welke experimenten het meeste op elkaar lijken enzovoort. Dit geldt hetzelfde
 voor de tweede grafiek, maar dan met de "K means" methode. De laatste grafiek 
 geeft weer welke genen bij elkaar horen tot een cluster, ook met de "K means"
@@ -272,11 +274,11 @@ resNC8 <- subset(resNC8, (logFC > 1 | logFC < -1) & FDR < 0.001)
 ```
 
 ## KEGG mapper
-Met de overgebleven genes zijn KEGG pathways bekeken aan de hand van de fold 
-change waardes. Er is voor zowel WCFS1 en NC8 vier pathways bekeken, namelijk Glycolysis_Gluconeogenesis, citroenzuurcyclus, pentosefosfaat en oxidatieve fosforylering. 
+Met de overgebleven genen zijn KEGG pathways bekeken aan de hand van de fold 
+change waardes. Er is voor zowel WCFS1 en NC8 vier pathways bekeken, namelijk Glycolyse / Gluconeogenese, citroenzuurcyclus en pentosefosfaat. 
 <br>
 Output: lokaal worden de acht pathways opgeslagen. met groen wordt aangegeven
-dat er een hogere genexperessie is bij ribose en met rood wordt aangegeven dat de
+dat er een hogere genexpressie is bij ribose en met rood wordt aangegeven dat de
 genexpressie bij glucose hoger is en met geen kleur wordt aangegeven dat het gelijk
 is. 
 ```{r KEGG mapper, message=FALSE}
@@ -285,13 +287,11 @@ names(logFC) <- row.names(resWCFS1)
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00010",  gene.idtype = "KEGG", out.suffix = "WCFS1.Glycolysis_Gluconeogenesis")
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00020",  gene.idtype = "KEGG", out.suffix = "WCFS1.CytrateCycle")
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00030",  gene.idtype = "KEGG", out.suffix = "WCFS1.PentosePhosphate")
-pathview(gene.data = logFC, species = "lpl", pathway = "lpl00190",  gene.idtype = "KEGG", out.suffix = "WCFS1.OxidativePhosphorilation")
 logFC <- resNC8$logFC
 names(logFC) <- row.names(resNC8)
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00010",  gene.idtype = "KEGG", out.suffix = "NC8.Glycolysis_Gluconeogenesis")
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00020",  gene.idtype = "KEGG", out.suffix = "NC8.CytrateCycle")
 pathview(gene.data = logFC, species = "lpl", pathway = "lpl00030",  gene.idtype = "KEGG", out.suffix = "NC8.PentosePhosphate")
-pathview(gene.data = logFC, species = "lpl", pathway = "lpl00190",  gene.idtype = "KEGG", out.suffix = "NC8.OxidativePhosphorilation")
 ```
 
 ## Annotatie toevoegen aan genen
@@ -310,13 +310,17 @@ resNC8 <- cbind(resNC8, annotation[rownames(resNC8),])
 
 ## Resultaten opslaan in een Excel bestand
 De data van de tabellen, welke de fold change waardes bevatten, worden lokaal 
-opgeslagen in een excel bestand. Dit bestand bestaat uit 2 verschillende sheets:
+opgeslagen in een Excel bestand. Dit bestand bestaat uit 2 verschillende sheets:
 een sheet met alle data en een ander sheet met de beste waarden.
 ```{r resultaten opslaan}
-write.xlsx(resWCFS1, paste0(fDir, "/foldChanges.xlsx"), sheetName = "WCFS1", 
+write.xlsx(fitWCFS1, paste0(fDir, "results.xlsx"), sheetName = "WCFS1 ongefilterd",
            col.names = T, row.names = T, append = F)
-write.xlsx(resNC8, paste0(fDir, "/foldChanges.xlsx"), sheetName = "NC8", 
+write.xlsx(fitNC8, paste0(fDir, "results.xlsx"), sheetName = "NC8 ongefilterd",
            col.names = T, row.names = T, append = T)
-write.xlsx(km.res$cluster, paste0(fDir, "/foldChanges.xlsx"), sheetName = "K-means Clustering", 
+write.xlsx(resWCFS1, paste0(fDir, "results.xlsx"), sheetName = "WCFS1 gefilterd", 
+           col.names = T, row.names = T, append = T)
+write.xlsx(resNC8, paste0(fDir, "results.xlsx"), sheetName = "NC8 gefilterd", 
+           col.names = T, row.names = T, append = T)
+write.xlsx(km.res$cluster, paste0(fDir, "results.xlsx"), sheetName = "K-means Clustering", 
            col.names = F, row.names = T, append = T)
 ```
