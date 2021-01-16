@@ -260,7 +260,7 @@ fviz_cluster(km.res, data = y, geom = "point")
 
 ### Filteren fold change en FDR-waarde
 Aan de hand van de MA plot is ervoor gekozen op alles tussen de 1 en de -1 aan 
-fold change weg te filteren en als de FDR waarde groter is dan 0,001 wordt het
+fold change weg te filteren en als de FDR-waarde groter is dan 0,001 wordt het
 gen er ook uitgefilterd, dus meer richting de nul. de overgebleven genen worden 
 weer in een data frame gezet. Er is uiteindelijk een data frame voor WCFS1 en NC8.
 ```{r filteren resultaten}
