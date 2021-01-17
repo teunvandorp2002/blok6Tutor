@@ -3,8 +3,9 @@ title: "Genexpressie van L. plantarum WCFS1 en NC8 bij glucose en ribose"
 author: "Teun van Dorp, Luc Hengeveld, Michelle Memelink"
 date: "16/01/2021"
 output:
-  word_document: default
+  pdf_document: default
   html_document: default
+  word_document: default
 ---
 ### Algemeen doel
 Het doel is om te onderzoeken of er verschil is in genexpressie bij de bacterie
@@ -234,6 +235,8 @@ print(topTags(fitWCFS1))
 print(topTags(fitNC8))
 resWCFS1<-topTags(fitWCFS1, n = length(fitWCFS1$fitted.values))
 resNC8<-topTags(fitNC8, n = length(fitNC8$fitted.values))
+ongefilterdWCFS1 <- resWCFS1
+ongefilterdNC8 <- resNC8
 ```
 
 ### Genen Clusteren
@@ -312,9 +315,9 @@ De data van de tabellen, welke de fold change waardes bevatten, worden lokaal
 opgeslagen in een Excel bestand. Dit bestand bestaat uit 2 verschillende sheets:
 een sheet met alle data en een ander sheet met de beste waarden.
 ```{r resultaten opslaan}
-write.xlsx(fitWCFS1, paste0(fDir, "results.xlsx"), sheetName = "WCFS1 ongefilterd",
+write.xlsx(ongefilterdWCFS1, paste0(fDir, "results.xlsx"), sheetName = "WCFS1 ongefilterd",
            col.names = T, row.names = T, append = F)
-write.xlsx(fitNC8, paste0(fDir, "results.xlsx"), sheetName = "NC8 ongefilterd",
+write.xlsx(ongefilterdNC8, paste0(fDir, "results.xlsx"), sheetName = "NC8 ongefilterd",
            col.names = T, row.names = T, append = T)
 write.xlsx(resWCFS1, paste0(fDir, "results.xlsx"), sheetName = "WCFS1 gefilterd", 
            col.names = T, row.names = T, append = T)
